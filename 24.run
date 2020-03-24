@@ -2,7 +2,7 @@ model 24.mod;
 data 24.dat;
 
 #display q0[11];
-options presolve 0; 
+#options presolve 0; 
 
 #option path_options "cumulative_iteration_limit = 1000000 #major_iteration_limit = 1000 crash_nbchange_limit=20 #nms_stepsize_init_min=0.05";
 
@@ -10,7 +10,7 @@ options presolve 0;
 
 #option path_options "crash_method=none crash_perturb=no lemke_start=always nms_initial_reference_factor=1 nms_memory_size=1 nms_mstep_frequency=1 nms_searchtype= line merit_function=normal";
 
-option solver knitro;
+#option solver knitro;
 #option path_options "crash_method=none crash_perturb=no lemke_start=always nms_initial_reference_factor=1 nms_memory_size=1 nms_mstep_frequency=1 nms_searchtype= line merit_function=normal";
 
 #option solve 
