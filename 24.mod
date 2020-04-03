@@ -206,6 +206,10 @@ subject to gcap1{i in I:ord(i)<>1, t in T}:
 	
 subject to output{i in I, t in T}:
 	0 <= g[i,t] complements -B[t]*mc1[i,t] - kappa[i,t] + delta[i,t] <=0;
+	
+###############################################################################
+# HOBBS PAPER FOR PARAMETER TABLE 2, J. REG. ECON. 		FOR CAP INVST		  #
+###############################################################################
 
 
 ###############################################################################
@@ -219,16 +223,17 @@ subject to demand{i in I, t in T}:
 # capacity market:															  #
 ###############################################################################
 subject to capacity_market{t = peak}:
-	0 <= caprice complements sum{f in F, i in I, h in H[f,i]}(cap[f,i,h]+xcap[f,i,h]) - sum{i in I}d[i,t]*(1+RM) <= 0
+	0 <= caprice complements sum{f in F, i in I, h in H[f,i]}(cap[f,i,h]+xcap[f,i,h]) - sum{i in I}d[i,t]*(1+RM) <= 0    #>>>>>>>>>>>>>>. This is H[f,i]^{new} 
 
 	
 ###############################################################################
 # arbitrager demand:															  #
 ###############################################################################
+
+
 subject to foc_a{i in I}:
 	p[i]-w[i] = ph;
 	
 subject to foc_ph:
 	sum{i in I} a[i] = 0;	
-	
 	
