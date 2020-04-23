@@ -1,8 +1,8 @@
-model 24.mod;
-data 24.dat;
+model capacity.mod;
+data capacity.dat;
 
 #display q0[11];
-#options presolve 0; 
+option presolve 0; 
 
 #option path_options "cumulative_iteration_limit = 1000000 #major_iteration_limit = 1000 crash_nbchange_limit=20 #nms_stepsize_init_min=0.05";
 
@@ -10,11 +10,11 @@ data 24.dat;
 
 #option path_options "crash_method=none crash_perturb=no lemke_start=always nms_initial_reference_factor=1 nms_memory_size=1 nms_mstep_frequency=1 nms_searchtype= line merit_function=normal";
 
-#option solver knitro;
+option solver knitro;
 #option path_options "crash_method=none crash_perturb=no lemke_start=always nms_initial_reference_factor=1 nms_memory_size=1 nms_mstep_frequency=1 nms_searchtype= line merit_function=normal";
 
 #option solve 
-option show_stats 1;
+#option show_stats 1;
 
 solve;
 
@@ -25,13 +25,16 @@ solve;
 
 #display price, x, pco2, ps, cs, iso, arb_profit, sw, cc, st, lambda_lo, lambda_up, z, g, flow, tx;
 
-display st, stf, mc1,  tz, l, g, pcap, d, p, delta, ts, a, w, delta,txt, totd, ps, avgp, cs, iso,tps, arb, sw, pres, swp;
+#display st, stf, mc1,  tz, l, g, pcap, d, p, delta, ts, a, w, delta,txt, totd, ps, avgp, cs, iso,tps, arb, sw, pres, swp;
 
 #display mc1, st, g, mc, x, a, txt, lambda_lo, lambda_up, totd, txt, pcap, l, y, tx, d, tzs, tzb, tz, p, delta,theta, miu, ts, a, w, delta, ps, cs, iso,tps, arb, sw, pres, primal;
 #display producer/1000;
-display sum {f in F} ps[f];
+#display sum {f in F} ps[f];
 
 #display sum {i in I} y[i];
 #display (sum{i in I} w[i])/24;
 
 #reset;
+
+
+display p,d,d1,d2,D, caprice;
