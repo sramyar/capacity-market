@@ -4,7 +4,7 @@ data capacity.dat;
 #display q0[11];
 option presolve 0; 
 
-#option path_options "cumulative_iteration_limit = 1000000 #major_iteration_limit = 1000 crash_nbchange_limit=20 #nms_stepsize_init_min=0.05";
+option path_options "cumulative_iteration_limit = 1000000000 #major_iteration_limit = 10000 crash_nbchange_limit=20 #nms_stepsize_init_min=0.05";
 
 #option path_options "crash_method=none crash_perturb=yes lemke_start=first nms=no";  #cumulative_iteration_limit=1000000 minor_iteration_limit=10000 time_limit=100000";
 

@@ -98,9 +98,10 @@ var xi2{I,T};
 ###############################################################################
 # Defined variables                                                           #
 ###############################################################################
-var d{i in I,t in T} = d1[i,t] + d2[i,t] - D[i,t];
-#var d{i in I, t in T} = sum{f in F} s[f,i,t];# +a[i,t];#-sum{f in F} zb[i,f];
-var p{i in I, t in T} = p0[i,t]- ((p0[i,t]/q0[i,t]*d[i,t])); # price at node i
+#var d{i in I,t in T} = d1[i,t] + d2[i,t] - D[i,t];
+var d{i in I, t in T} = sum{f in F} s[f,i,t];# +a[i,t];#-sum{f in F} zb[i,f];
+#var p{i in I, t in T} = p0[i,t]- (p0[i,t]/q0[i,t])*d[i,t]; # price at node i
+var p{I,T} >= 0;
 var mc {f in F, i in I, h in H[f,i],t in T} = b0[h] + 2*b1[h]* (x[f,i,h,t]);			# Marginal cost 
 var mc1{i in I, t in T} = pmc0[2] + pmc1[2]*g[i,t];
 var flow {k in K, t in T} = sum {i in I} (PTDF[k,i]*y[i,t]);	 						# Flow definition
@@ -136,56 +137,7 @@ var sw = cs + sum{f in F} ps[f] + iso;											# social surplus
 #var producer = sum{f in F, i in I, h in H[f,i]}( p[i]*x[f,i,h]) - sum{i in I, f in F, h in H[f,i]} (b0[h]*x[f,i,h] + b1[h]*(x[f,i,h]^2));
 #var producer2 = sum {f in F} (sum{i in I} (p[i])*s[f,i]-sum{i in I, h in H[f,i]} ((mc[f,i,h])*x[f,i,h]))/1000;
 
-###############################################################################
-# Model                                                                       #
-###############################################################################
 
-subject to prod_sur {f in F, i in I, t in T}: 
-	0 <= s[f,i,t] complements  B[t]*(p[i,t] - w[i,t]) - theta [f,t] <= 0;
-
-subject to prod_x {f in F, i in I, h in H[f,i], t in T}: 
-	0 <= x[f,i,h,t] complements B[t]*( - mc[f,i,h,t] + w[i,t]) - rho[f,i,h,t] +theta[f,t] <= 0;
-	
-subject to prod_xnew {f in F, i in I, v in V[f,i], t in T}: 
-	0 <= xnew[f,i,v,t] complements B[t]*( - MCV[v] + w[i,t]) - rhonew[f,i,v,t] +theta[f,t] <= 0;
-
-subject to newcap{f in F, i in I, v in V[f,i]}:
-	0 <= xcap[f,i,v] complements -INV[v] + caprice + sum{t in T}rhonew[f,i,v,t] <= 0;
-
-subject to gen_sale_balance {f in F, t in T}: # proper care is needed when calculating surplus
-	sum {i in I} (s[f,i,t] +zb[i,f,t]-zs[i,f,t]) - sum{i in I, h in H[f,i]} x[f,i,h,t] - sum{i in I, v in V[f,i]}xnew[f,i,v,t] = 0;
-
-subject to prod_cap {f in F, i in I, h in H[f,i], t in T}:
-	0 <= rho[f,i,h,t] complements x[f,i,h,t] - cap[h] <= 0; 		#>>>>>>>>> WORTH CONSIDERING IN TERMS OF ORGANIZING *H* and *H^new*
-
-subject to prod_capnew {f in F, i in I, v in V[f,i], t in T}:
-	0 <= rhonew[f,i,v,t] complements xnew[f,i,v,t] - xcap[f,i,v] <= 0;        
-	
-##############################################################################
-# Grid Owner KKT														  #
-###############################################################################                  
-
-subject to flow_upper{k in K, t in T}:
- 	0 <= lambda_up[k,t] complements flow[k,t] - Tcap[k] <= 0;
-
-subject to flow_lower{k in K, t in T}: 	
-	0 <= lambda_lo[k,t] complements -flow[k,t] - Tcap[k] <= 0;
-
-subject to injection {i in I, t in T}:
-	  B[t]*w[i,t] + sum{k in K} (PTDF[k,i]*(lambda_lo[k,t]-lambda_up[k,t])) = 0;
-	  
-###############################################################################
-# balance	:																  #
-###############################################################################
-
-subject to nodalbalance {i in I, t in T}:
-	y[i,t] = - sum{f in F, h in H[f,i]}x[f,i,h,t] - sum{f in F, v in V[f,i]}xnew[f,i,v,t] + sum{f in F} s[f,i,t] - sum{f in F} (zs[i,f,t]-zb[i,f,t]);		
-
-#subject to nodalbalance {f in F, t in T}:
-#	sum{i in I}(s[f,i,t] - tz[i,t]) - sum{i in I, h in H[f,i]}x[f,i,h,t] - sum{i in I, v in V} xnew[v,i,t] = 0;
-
-#subject to yzero{t in T}:
-#	sum{i in I} y[i,t] = 0;
 
 ##############################################################################
 # prosumer KKT:																  #
@@ -221,17 +173,87 @@ subject to gcap1{i in I, t in T:ord(i)<>1}:
 subject to output{i in I, t in T}:
 	0 <= g[i,t] complements -B[t]*mc1[i,t] - kappa[i,t] + delta[i,t] <=0;
 	
+
+
+
+	
+###############################################################################
+# producer                                                                       #
+###############################################################################
+
+subject to prod_sur {f in F, i in I, t in T}: 
+	0 <= s[f,i,t] complements  B[t]*(p[i,t] - w[i,t]) - theta [f,t] <= 0;
+
+
+subject to prod_x {f in F, i in I, h in H[f,i], t in T}: 
+	0 <= x[f,i,h,t] complements B[t]*( - mc[f,i,h,t] + w[i,t]) - rho[f,i,h,t] +theta[f,t] <= 0;
+	
+subject to prod_xnew {f in F, i in I, v in V[f,i], t in T}: 
+	0 <= xnew[f,i,v,t] complements B[t]*( - MCV[v] + w[i,t]) - rhonew[f,i,v,t] +theta[f,t] <= 0;
+
+subject to newcap{f in F, i in I, v in V[f,i]}:
+	0 <= xcap[f,i,v] complements -INV[v] + caprice + sum{t in T}rhonew[f,i,v,t] <= 0;
+
+subject to prod_cap {f in F, i in I, h in H[f,i], t in T}:
+	0 <= rho[f,i,h,t] complements x[f,i,h,t] - cap[h] <= 0; 		#>>>>>>>>> WORTH CONSIDERING IN TERMS OF ORGANIZING *H* and *H^new*
+
+subject to prod_capnew {f in F, i in I, v in V[f,i], t in T}:
+	0 <= rhonew[f,i,v,t] complements xnew[f,i,v,t] - xcap[f,i,v] <= 0;        
+
+subject to gen_sale_balance {f in F, t in T}: # proper care is needed when calculating surplus
+	sum {i in I} (s[f,i,t] -tz[i,t]) - sum{i in I, h in H[f,i]} x[f,i,h,t] - sum{i in I, v in V[f,i]}xnew[f,i,v,t] = 0;
+
+#subject to gen_sale_balance {i in I, f in F, t in T}: # proper care is needed when calculating surplus
+#	s[f,i,t] - (zs[i,f,t] - zb[i,f,t]) - sum{h in H[f,i]} x[f,i,h,t] - sum{v in V[f,i]}xnew[f,i,v,t] = 0;
+
+
+
+
+	
 ###############################################################################
 # HOBBS PAPER FOR PARAMETER TABLE 2, J. REG. ECON. 		FOR CAP INVST		  #
 ###############################################################################
+
+##############################################################################
+# Grid Owner KKT														  #
+###############################################################################                  
+
+subject to flow_upper{k in K, t in T}:
+ 	0 <= lambda_up[k,t] complements flow[k,t] - Tcap[k] <= 0;
+
+subject to flow_lower{k in K, t in T}: 	
+	0 <= lambda_lo[k,t] complements -flow[k,t] - Tcap[k] <= 0;
+
+subject to injection {i in I, t in T}:
+	  B[t]*w[i,t] + sum{k in K} (PTDF[k,i]*(lambda_lo[k,t]-lambda_up[k,t])) = 0;
+	  
+
+	
+
+
+###############################################################################
+# balance	:																  #
+###############################################################################
+
+subject to nodalbalance {i in I, t in T}:
+	y[i,t] = - sum{f in F, h in H[f,i]}x[f,i,h,t] - sum{f in F, v in V[f,i]}xnew[f,i,v,t] + sum{f in F} s[f,i,t] - tz[i,t];		 #tz[i,t] used to be sum{f in F} (zs[i,f,t]-zb[i,f,t])
+
+#subject to genoffset {f in F, t in T}:
+#	sum{i in I}(s[f,i,t] - tz[i,t]) - sum{i in I, h in H[f,i]}x[f,i,h,t] - sum{i in I, v in V[f,i]} xnew[f,i,v,t] = 0;
+
+
+#subject to yzero{t in T}:
+#	sum{i in I} y[i,t] = 0;
 
 
 ###############################################################################
 # demand:																	  #
 ###############################################################################
-#subject to demands{i in I, t in T}:
-#	d[i,t] = d1[i,t] + d2[i,t] - D[i,t];
 
+
+
+subject to DnS{i in I, t in T}:
+	d[i,t] = sum{f in F} s[f,i,t];
 
 subject to demand1{i in I, t in T}:
 	0 <= d1[i,t] complements p0[i,t] - p[i,t] - xi1[i,t] <= 0;
@@ -245,18 +267,27 @@ subject to xi_1{i in I, t in T}:
 subject to xi_2{i in I, t in T}:
 	0 <= xi2[i,t] complements d2[i,t] - q0[i,t] <= 0;
 
-subject to DnS{i in I, t in T}:
-	d[i,t] = sum{f in F} s[f,i,t];
+subject to demands{i in I, t in T}:
+	d[i,t] = d1[i,t] + d2[i,t] - D[i,t];
 	
-subject to yzero{t in T}:
-	sum{i in I} y[i,t] = 0;
+	
+/*
+*/
+
+#subject to demand2{i in I, t in T}:
+#	0 <= d[i,t] complements p0[i,t] - (p0[i,t]/q0[i,t])*d[i,t] - p[i,t] <= 0;
+
+
+
+
 ###############################################################################
 # capacity market:															  #
 ###############################################################################
 subject to capacity_market:
 	0 <= caprice complements sum{f in F, i in I, h in H[f,i]}cap[h]+ sum{f in F, i in I, v in V[f,i]}xcap[f,i,v] - sum{i in I}d[i,'peak']*(1+RM) >= 0    #>>>>>>>>>>>>>>. This is H[f,i]^{new} 
 
-	
+
+
 ###############################################################################
 # arbitrager demand:															  #
 ###############################################################################
