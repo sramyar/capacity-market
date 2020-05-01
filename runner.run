@@ -1,0 +1,78 @@
+model capacity.mod;
+data capacity.dat;
+
+
+set type;
+set time;
+
+param lp{K, type};
+param ln{K, type};
+
+
+param L{type};
+param Z{type};
+param G{type};
+param price{type};
+param demand{type};
+param sales{type};
+param floww{type};
+param consurplus{type};
+param psurplus{type};
+param prodsurplus{type};
+param welfare{type};
+param average_price{type};
+param comp_welfare{type};
+param MC{type};
+param MBP{type};
+param totalD{type};
+param totalX{type};
+param ISO{type};
+param lamdap{type};
+param lamdan{type};
+param teta{type};
+param csps{type};
+param swQP{type};
+
+let type := 20 .. 120 by 10;
+
+for {i in type}{
+		let pcap[1] :=i;
+		options presolve 0; 
+		option solver pathampl;
+		option path_options "cumulative_iteration_limit = 1000000000 #major_iteration_limit = 10000 crash_nbchange_limit=20 #nms_stepsize_init_min=0.05";
+		solve;
+		let L[i]:=l[1];
+		let Z[i]:=tz[1];
+		let G[i]:=g[1];
+		let price[i]:=p[1];
+		let demand[i]:=d[1];
+		let sales[i] :=ts[1];
+		let floww[i] := y[1];
+		let consurplus[i] := cs;
+		let psurplus[i] := primal;
+		let prodsurplus[i] := sum{f in F}ps[f];
+		let welfare[i] := sw;
+		let average_price[i] := avgp;
+		let comp_welfare[i] := swp;
+		let MC[i] := mc1[1];
+		let MBP[i] := p2[1]-(p2[1]/q2[1])*l[1];
+		let totalD[i] := totd;
+		let totalX[i] := txt;
+		let csps[i] := consurplus[i] + prodsurplus[i];
+		let ISO[i] := iso;
+		let lamdap[i] := lambda_up[7];
+		let lamdan[i] := lambda_lo[7];
+		let teta[i] := theta;
+		let swQP[i] := swqp;
+
+}
+
+#display L, Z, G, price, MC, MBP, demand, sales, totalD, totalX, floww, consurplus, prodsurplus, psurplus, iso, welfare, average_price, comp_welfare;
+#display welfare;
+display type, welfare, swQP, csps, ISO, Z, lamdap, lamdan, teta, price, average_price;
+
+table newtable OUT "odbc" "newtable.xlsx":
+	[type], L, Z, G, price, demand, sales, ISO, floww, consurplus, prodsurplus, psurplus, welfare, average_price, comp_welfare, totalD, totalX, MC, MBP;
+
+write table newtable;
+

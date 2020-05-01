@@ -65,7 +65,7 @@ var zb{i in I,f in F, t in T} >=0;			# buy of prosumer to wholesale market
 var delta{I,T} >=0;							# dual for prosumer min load satisfaction at node i
 var g{I,T} >=0;								# output by dispatchable plants owned by presumer
 var l{I,T} >=0;								# consumption
-var z{ i in I, f in F,t in T} = zs[i,f,t]-zb[i,f,t];
+
 ###############################################################################
 # Mutipliers for variational inequality constraints                           #
 ###############################################################################
@@ -118,10 +118,8 @@ var totd{t in T} =sum{i in I} d[i,t];
 var avgp{t in T} =sum{i in I} (p[i,t]*d[i,t])/totd[t];
 var mb{i in I, t in T} = tau[i]*p2[i,t]-p2[i,t]/q2[i,t]*(pcap[1]+g[i,t]);
 var tx{i in I, t in T} = sum{f in F, h in H[f,i]} (x[f,i,h,t]); 
-#var tzs{i in I, t in T} = sum{f in F} zs[i,f,t];
-#var tzb{i in I, t in T} = sum{f in F} zb[i,f,t];
-var tzs{i in I, t in T} =  zs[i,1,t];
-var tzb{i in I, t in T} =  zb[i,1,t];
+var tzs{i in I, t in T} = sum{f in F} zs[i,f,t];
+var tzb{i in I, t in T} = sum{f in F} zb[i,f,t];
 var tz{i in I, t in T} = tzs[i,t]- tzb[i,t];
 #var pres = (sum{i in I} p[i]*(tz[i]) - sum{i in I} (p2[i]*(pcap[1]-l[i])-0.5*p2[i]/q2[i]*(pcap[1]**2-l[i]**2))-pmc0[1]*pcap[1]-sum{i in I}(pmc0[2]*g[i]+0.5*pmc1[2]*g[i]**2))/1000; 		#presumers profit
 var pres{t in T} = (1/1000)*(sum{i in I} p[i,t]*(tz[i,t]) + sum{i in I} (tau[i]*p2[i,t]*l[i,t] - 0.5*(p2[i,t]/q2[i,t])*(l[i,t]^2)) -sum{i in I}(pmc0[2]*g[i,t]+0.5*pmc1[2]*g[i,t]**2)); 		#presumers profit
@@ -142,7 +140,7 @@ var sw{t in T} = cs[t] + sum{f in F} ps[f,t] + iso[t];											# social surplu
 #var producer = sum{f in F, i in I, h in H[f,i]}( p[i]*x[f,i,h]) - sum{i in I, f in F, h in H[f,i]} (b0[h]*x[f,i,h] + b1[h]*(x[f,i,h]^2));
 #var producer2 = sum {f in F} (sum{i in I} (p[i])*s[f,i]-sum{i in I, h in H[f,i]} ((mc[f,i,h])*x[f,i,h]))/1000;
 
-var dpeak = sum{i in I}d[i,'peak'];
+
 
 ##############################################################################
 # prosumer KKT:																  #
@@ -206,14 +204,12 @@ subject to prod_capnew {f in F, i in I, v in V[f,i], t in T}:
 	0 <= rhonew[f,i,v,t] complements xnew[f,i,v,t] - xcap[f,i,v] <= 0;        
 
 subject to gen_sale_balance {f in F, t in T}: # proper care is needed when calculating surplus
-	sum {i in I} (s[f,i,t] - tz[i,t]) - sum{i in I, h in H[f,i]} x[f,i,h,t] - sum{i in I, v in V[f,i]}xnew[f,i,v,t] = 0;
+	sum {i in I} (s[f,i,t] -tz[i,t]) - sum{i in I, h in H[f,i]} x[f,i,h,t] - sum{i in I, v in V[f,i]}xnew[f,i,v,t] = 0;
 
 #subject to gen_sale_balance {i in I, f in F, t in T}: # proper care is needed when calculating surplus
 #	s[f,i,t] - (zs[i,f,t] - zb[i,f,t]) - sum{h in H[f,i]} x[f,i,h,t] - sum{v in V[f,i]}xnew[f,i,v,t] = 0;
 
 
-#subject to gen_sale_balance {f in F, t in T}: # proper care is needed when calculating surplus
-#	sum {i in I} (s[f,i,t] - tz[i,t]) - sum{i in I, h in H[f,i]} x[f,i,h,t] - sum{i in I, v in V[f,i]}xnew[f,i,v,t] = 0;
 
 
 	
@@ -259,26 +255,25 @@ subject to nodalbalance {i in I, t in T}:
 
 
 
+subject to DnS{i in I, t in T}:
+	d[i,t] = sum{f in F} s[f,i,t];
 
 subject to demand1{i in I, t in T}:
 	0 <= d1[i,t] complements pricecap - p[i,t] - xi1[i,t] <= 0;
 
 subject to demand2{i in I, t in T}:
-	0 <= (d2[i,t] - D[i,t]) complements p0[i,t] - (p0[i,t]/q0[i,t])*d2[i,t] - p[i,t] - xi2[i,t] <= 0;
+	0 <= d2[i,t] complements p0[i,t] - (p0[i,t]/q0[i,t])*((d2[i,t] + D[i,t])) - p[i,t] - xi2[i,t] <= 0;
 
 subject to xi_1{i in I, t in T}:
 	0 <= xi1[i,t] complements d1[i,t] - D[i,t] <= 0;
 	
 subject to xi_2{i in I, t in T}:
-	0 <= xi2[i,t] complements d2[i,t] - q0[i,t] <= 0;
+	0 <= xi2[i,t] complements d2[i,t] - q0[i,t] + D[i,t] <= 0;
 
 subject to demands{i in I, t in T}:
-	d[i,t] = d1[i,t] + d2[i,t] - D[i,t];
+	d[i,t] = d1[i,t] + d2[i,t];
 	
-subject to DnS{i in I, t in T}:
-	d[i,t] = sum{f in F} s[f,i,t];
-
-
+	
 /*
 */
 

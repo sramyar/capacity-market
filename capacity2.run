@@ -1,4 +1,4 @@
-model try.mod;
+model capacity2.mod;
 data capacity.dat;
 
 #display q0[11];
@@ -36,14 +36,5 @@ solve;
 
 #reset;
 
-param kapp = sum{i in I, f in F, h in H[f,i]}cap[h];
-var gentot = sum{i in I, f in F, h in H[f,i]}x[f,i,h,'peak'];
-var dtot = sum{i in I}d[i,'peak'];
-var xnewgen = sum{i in I, f in F, v in V[f,i]}xnew[f,i,v,'peak'];
-var stot = sum{i in I, f in F} s[f,i,'peak'];
-display p,d,xcap,xnew, dpeak, tz, dtot, xnewgen, kapp, (stot- xnewgen - gentot);
-display (kapp+xnewgen+tz[1,'peak']);
-display stot;
-display dtot;
-display gentot;
-display xnewgen+tz[1,'peak']+gentot;
+
+display p,d;
