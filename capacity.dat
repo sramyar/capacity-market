@@ -6,6 +6,7 @@ param B:= peak 760 offpeak 8000;
 param pricecap := 200;
 param INV := ct 80154	cc 136419	coal 120253;
 param MCV := ct 79.60	cc 53.60	coal 29.40;
+param RM := 0.2 ;
 set VV := ct cc coal;
 set T := peak offpeak;
 
@@ -469,7 +470,7 @@ param p2:	peak	offpeak:=
 		24	0		0;
 		
 param q2:	peak	offpeak:=
-		1	129.6	129.6
+		1	280			129.6
 		2	129.6		129.6
 		3	129.6		129.6
 		4	129.6		129.6
@@ -549,7 +550,7 @@ param D: peak				offpeak :=
 */
 		
 param  q0: peak				offpeak :=
-		1	310			 	129.6
+		1	280			 	129.6
 		2	232			116.4		
 		3	460				216			
 		4	176		 	88.8

@@ -1,4 +1,4 @@
-model try.mod;
+model capacity.mod;
 data capacity.dat;
 
 #display q0[11];
@@ -36,14 +36,29 @@ solve;
 
 #reset;
 
-param kapp = sum{i in I, f in F, h in H[f,i]}cap[h];
-var gentot = sum{i in I, f in F, h in H[f,i]}x[f,i,h,'peak'];
-var dtot = sum{i in I}d[i,'peak'];
-var xnewgen = sum{i in I, f in F, v in V[f,i]}xnew[f,i,v,'peak'];
-var stot = sum{i in I, f in F} s[f,i,'peak'];
-display p,d,xcap,xnew, dpeak, tz, dtot, xnewgen, kapp, (stot- xnewgen - gentot);
-display (kapp+xnewgen+tz[1,'peak']);
-display stot;
-display dtot;
-display gentot;
-display xnewgen+tz[1,'peak']+gentot;
+# ct >>  1,2 as f,i
+# cc >>  2,15
+# coal >> 3,23
+#param INV := ct 80154	cc 136419	coal 120253;
+#param MCV := ct 79.60	cc 53.60	coal 29.40;
+
+var total_new_capacity = sum{f in F, i in I, v in V[f,i]}xcap[f,i,v];
+var total_peak_demand = sum{i in I}d[i,'peak'];
+var total_peak_x = sum{f in F, i in I, h in H[f,i]}x[f,i,h,'peak'];
+var total_peak_xnew = sum{f in F, i in I, v in V[f,i]}xnew[f,i,v,'peak'];
+var Z_peak = tz[1,'peak'];
+var Z_offpeak = tz[1,'offpeak'];
+
+var ct_profit = p[13,'peak'] - MCV['ct'] - INV['ct']/B['peak'];
+var cc_profit = p[15,'peak'] - MCV['cc'] - INV['cc']/B['peak'];
+var coal_profit = p[23,'peak'] - MCV['coal'] - INV['coal']/B['peak'];
+
+display p,d, Z_offpeak, total_new_capacity, total_peak_x, total_peak_xnew, Z_peak, total_peak_demand;
+
+
+display ct_profit, cc_profit, coal_profit;
+
+
+
+
+
