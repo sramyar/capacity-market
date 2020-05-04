@@ -1,5 +1,5 @@
-model capacity.mod;
-data capacity.dat;
+model eom.mod;
+data eom.dat;
 
 #display q0[11];
 option presolve 0; 
@@ -58,7 +58,6 @@ display p,d, Z_offpeak, total_new_capacity, total_peak_x, total_peak_xnew, Z_pea
 display cs, iso, ps, sw;
 
 display w, sum{i in I}w[i,'peak']/24;
-
 
 display ct_profit, cc_profit, coal_profit;
 
