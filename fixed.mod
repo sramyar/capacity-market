@@ -1,6 +1,6 @@
 # By Yihsu Chen and Sepehr Ramyar 
 # Prosumer model linked to wholesale and capacity markets
- 
+# This model assumes fixed capacity for new units
 ###############################################################################
 # Sets used to define the problem                                             #
 ###############################################################################
@@ -79,17 +79,15 @@ var kappa{i in I, t in T} >= 0;								# dual on dispatchable unit
 ###############################################################################
 # capacity market elements                         							  #
 ###############################################################################
-var caprice;									# price of capacity
-var xcap{f in F, i in I, v in V[f,i]};			# upper bound for new capacity to be instaled
 var xnew{f in F, i in I, v in V[f,i], t in T};	# new capacity to be installed
 param INV{VV};								# investment cost for capacity
 param MCV{VV};								# variable cost of unit of tech {v}
+param XCAP{VV};
 var rhonew{f in F, i in I, v in V[f,i], t in T};
 
 
 param pricecap;							# price cap in $/MWh
-#param D{i in I, t in T} = (p0[i,t]-pricecap)*(q0[i,t]/p0[i,t]) ;						# Demand function kink
-param D{i in I, t in T} := 0;
+param D{i in I, t in T} = (p0[i,t]-pricecap)*(q0[i,t]/p0[i,t]) ;						# Demand function kink
 param RM;								# reserve margin
 var d1{I,T};
 var d2{I,T};
@@ -106,7 +104,6 @@ var p{I,T} >= 0;
 var mc {f in F, i in I, h in H[f,i],t in T} = b0[h] + 2*b1[h]* (x[f,i,h,t]);			# Marginal cost 
 var mc1{i in I, t in T} = pmc0[2] + pmc1[2]*g[i,t];
 var flow {k in K, t in T} = sum {i in I} (PTDF[k,i]*y[i,t]);	 						# Flow definition
-var ps_total{f in F, t in T} = (1/1000)*(   sum{i in I}( (p[i,t] - w[i,t])*(s[f,i,t] - zs[f,i,t] + zb[f,i,t]) ) - sum{i in I, h in H[f,i]}(   x[f,i,h,t]*b0[h] + (x[f,i,h,t]^2)*b1[h] - w[i,t]*x[f,i,h,t]   )	- sum{i in I, v in V[f,i]}(  MCV[v]*xnew[f,i,v,t] - w[i,t]*xnew[f,i,v,t]   )		- sum{i in I, v in V[f,i]}(xcap[f,i,v]*INV[v]) + caprice*(sum{i in I, h in H[f,i], v in V[f,i]} (cap[h]+xcap[f,i,v]))	);	
 var ps{f in F, t in T} = (1/1000)*(   sum{i in I}( (p[i,t] - w[i,t])*(s[f,i,t] - zs[f,i,t] + zb[f,i,t]) ) - sum{i in I, h in H[f,i]}(   x[f,i,h,t]*b0[h] + (x[f,i,h,t]^2)*b1[h] - w[i,t]*x[f,i,h,t]   )	- sum{i in I, v in V[f,i]}(  MCV[v]*xnew[f,i,v,t] - w[i,t]*xnew[f,i,v,t]   )		);
 #var ps{f in F} = (1/1000)*(sum{i in I} (p[i]-w[i])*s[f,i]-sum{i in I, h in H[f,i]} b1[h]*x[f,i,h]);
 #var ps{f in F} = (sum{i in I} (p[i]-w[i])*s[f,i]-sum{i in I, h in H[f,i]} ((mc[f,i,h]-w[i])*x[f,i,h]))/1000;
@@ -197,14 +194,11 @@ subject to prod_x {f in F, i in I, h in H[f,i], t in T}:
 subject to prod_xnew {f in F, i in I, v in V[f,i], t in T}: 
 	0 <= xnew[f,i,v,t] complements B[t]*( - MCV[v] + w[i,t]) - rhonew[f,i,v,t] +theta[f,t] <= 0;
 
-subject to newcap{f in F, i in I, v in V[f,i]}:
-	0 <= xcap[f,i,v] complements -INV[v] + caprice + sum{t in T}rhonew[f,i,v,t] <= 0;
-
 subject to prod_cap {f in F, i in I, h in H[f,i], t in T}:
 	0 <= rho[f,i,h,t] complements x[f,i,h,t] - cap[h] <= 0; 		#>>>>>>>>> WORTH CONSIDERING IN TERMS OF ORGANIZING *H* and *H^new*
 
 subject to prod_capnew {f in F, i in I, v in V[f,i], t in T}:
-	0 <= rhonew[f,i,v,t] complements xnew[f,i,v,t] - xcap[f,i,v] <= 0;        
+	0 <= rhonew[f,i,v,t] complements xnew[f,i,v,t] - XCAP[v] <= 0;        
 
 subject to gen_sale_balance {f in F, t in T}: # proper care is needed when calculating surplus
 	sum {i in I} (s[f,i,t] - z[f,i,t]) - sum{i in I, h in H[f,i]} x[f,i,h,t] - sum{i in I, v in V[f,i]}xnew[f,i,v,t] = 0;
@@ -259,7 +253,7 @@ subject to nodalbalance {i in I, t in T}:
 ###############################################################################
 
 
-/*
+
 
 subject to demand1{i in I, t in T}:
 	0 <= d1[i,t] complements pricecap - p[i,t] - xi1[i,t] <= 0;
@@ -279,10 +273,12 @@ subject to demands{i in I, t in T}:
 subject to DnS{i in I, t in T}:
 	d[i,t] = sum{f in F} s[f,i,t];
 
+
+/*
 */
 
-subject to demand2{i in I, t in T}:
-	0 <= d[i,t] complements p0[i,t] - (p0[i,t]/q0[i,t])*d[i,t] - p[i,t] <= 0;
+#subject to demand2{i in I, t in T}:
+#	0 <= d[i,t] complements p0[i,t] - (p0[i,t]/q0[i,t])*d[i,t] - p[i,t] <= 0;
 
 
 
@@ -290,9 +286,10 @@ subject to demand2{i in I, t in T}:
 ###############################################################################
 # capacity market:															  #
 ###############################################################################
+/*
 subject to capacity_market:
 	0 <= caprice complements sum{f in F, i in I, h in H[f,i]}cap[h]+ sum{f in F, i in I, v in V[f,i]}xcap[f,i,v] - sum{i in I}d[i,'peak']*(1+RM) >= 0    #>>>>>>>>>>>>>>. This is H[f,i]^{new} 
-
+*/
 
 
 ###############################################################################
