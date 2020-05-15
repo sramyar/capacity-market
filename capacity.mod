@@ -291,10 +291,11 @@ subject to DnS{i in I, t in T}:
 ###############################################################################
 # capacity market:															  #
 ###############################################################################
+
 subject to capacity_market:
 	0 <= caprice complements sum{f in F, i in I, h in H[f,i]}cap[h]+ sum{f in F, i in I, v in V[f,i]}xcap[f,i,v] - sum{i in I}d[i,'peak']*(1+RM) >= 0    #>>>>>>>>>>>>>>. This is H[f,i]^{new} 
-
-
+/*
+*/
 
 ###############################################################################
 # arbitrager demand:															  #

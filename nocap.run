@@ -1,0 +1,72 @@
+model nocap.mod;
+data capacity.dat;
+
+#display q0[11];
+option presolve 0; 
+
+option path_options "cumulative_iteration_limit = 1000000000 #major_iteration_limit = 10000 crash_nbchange_limit=20 #nms_stepsize_init_min=0.05";
+
+#option path_options "crash_method=none crash_perturb=yes lemke_start=first nms=no";  #cumulative_iteration_limit=1000000 minor_iteration_limit=10000 time_limit=100000";
+
+#option path_options "crash_method=none crash_perturb=no lemke_start=always nms_initial_reference_factor=1 nms_memory_size=1 nms_mstep_frequency=1 nms_searchtype= line merit_function=normal";
+
+option solver pathampl;
+#option path_options "crash_method=none crash_perturb=no lemke_start=always nms_initial_reference_factor=1 nms_memory_size=1 nms_mstep_frequency=1 nms_searchtype= line merit_function=normal";
+
+#option solve 
+#option show_stats 1;
+
+solve;
+
+#option display_1col 0;
+#option display_width 10000; 
+#option display_round 2;
+#option omit_zero_rows 0;
+
+#display price, x, pco2, ps, cs, iso, arb_profit, sw, cc, st, lambda_lo, lambda_up, z, g, flow, tx;
+
+#display st, stf, mc1,  tz, l, g, pcap, d, p, delta, ts, a, w, delta,txt, totd, ps, avgp, cs, iso,tps, arb, sw, pres, swp;
+
+#display mc1, st, g, mc, x, a, txt, lambda_lo, lambda_up, totd, txt, pcap, l, y, tx, d, tzs, tzb, tz, p, delta,theta, miu, ts, a, w, delta, ps, cs, iso,tps, arb, sw, pres, primal;
+#display producer/1000;
+#display sum {f in F} ps[f];
+
+#display sum {i in I} y[i];
+#display (sum{i in I} w[i])/24;
+
+#reset;
+
+# ct >>  1,2 as f,i
+# cc >>  2,15
+# coal >> 3,23
+#param INV := ct 80154	cc 136419	coal 120253;
+#param MCV := ct 79.60	cc 53.60	coal 29.40;
+
+/*
+var total_new_capacity = sum{f in F, i in I, v in V[f,i]}xcap[f,i,v];
+var total_peak_demand = sum{i in I}d[i,'peak'];
+var total_peak_x = sum{f in F, i in I, h in H[f,i]}x[f,i,h,'peak'];
+var total_peak_xnew = sum{f in F, i in I, v in V[f,i]}xnew[f,i,v,'peak'];
+var Z_peak = tz[1,'peak'];
+var Z_offpeak = tz[1,'offpeak'];
+
+var ct_profit = p[13,'peak'] - MCV['ct'] - INV['ct']/B['peak'];
+var cc_profit = p[15,'peak'] - MCV['cc'] - INV['cc']/B['peak'];
+var coal_profit = p[23,'peak'] - MCV['coal'] - INV['coal']/B['peak'];
+
+display p,d, Z_offpeak, total_new_capacity, total_peak_x, total_peak_xnew, Z_peak, total_peak_demand;
+
+display cs, iso, ps, sw;
+
+display sum{i in I}w[i,'peak']/24;
+
+
+display ct_profit, cc_profit, coal_profit;
+*/
+
+display p,d;
+
+
+
+
+

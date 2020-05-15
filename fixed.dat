@@ -8,7 +8,7 @@ param INV := ct 80154	cc 136419	coal 120253;
 param MCV := ct 79.60	cc 53.60	coal 29.40;
 param RM := 0.2 ;
 set VV := ct cc coal;
-param XCAP := ct 1279.66	cc 5.90487		coal 1307.12;
+param XCAP := ct 1289.31	cc 841.455		coal 1307.12;
 set T := peak offpeak;
 
 #*******************************************************************************
@@ -173,7 +173,7 @@ set V[3,19] :=;
 set V[3,20] :=;
 set V[3,21] :=;
 set V[3,22] :=;
-set V[3,23] := coal;
+set V[3,23] := ;	#coal
 set V[3,24] :=;
 
 
