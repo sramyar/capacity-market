@@ -1,0 +1,30 @@
+model capacity.mod;
+data capacity.dat;
+
+
+set output;			# prosumer renewable output
+
+
+param Z{output};
+param price{output};
+
+
+let output := 20 .. 120 by 20;
+
+for {j in output}{
+	let pcap[1] := j;
+		options presolve 0; 
+		option solver pathampl;
+		option path_options "cumulative_iteration_limit = 1000000000 #major_iteration_limit = 10000 crash_nbchange_limit=20 #nms_stepsize_init_min=0.05";
+		solve;
+
+		let Z[j]:=tz[1];
+
+		let price[j]:=p[1];
+		
+	}	
+	
+}
+
+display Z, price;
+
