@@ -39,7 +39,7 @@ param q00{I};			# original horizontal intercept of the data
 
 #param p0{I,T};			# vertical intercept for demand
 #param q0{I,T};			# horizontal intercept for demand
-param pcoeff = 0.12*pcap[1]+ 0.7 ;
+param pcoeff = 0.012*pcap[1]+ 0.7 ;
 
 param p0{i in I, t in T} = if t='peak' then p00[i]*pcoeff else p00[i];
 param q0{i in I, t in T} = if t='peak' then q00[i]*pcoeff else q00[i];
@@ -72,12 +72,11 @@ var a{I,T};											# arbitrage
 ###############################################################################
 # prosumer variables:
 ###############################################################################
-var zs{f in F,i in I, t in T} >=0;			# sale  of prosumer to wholesale market
-var zb{f in F,i in I, t in T} >=0;			# buy of prosumer to wholesale market
+var zs{i in I,f in F, t in T} >=0;			# sale  of prosumer to wholesale market
+var zb{i in I,f in F, t in T} >=0;			# buy of prosumer to wholesale market
 var delta{I,T} >=0;							# dual for prosumer min load satisfaction at node i
 var g{I,T} >=0;								# output by dispatchable plants owned by presumer
-var l{I,T} >=0;								# consumption
-var z{ f in F, i in I, t in T} = zs[f,i,t]-zb[f,i,t];
+var l{I,T} >=0;	
 ###############################################################################
 # Mutipliers for variational inequality constraints                           #
 ###############################################################################
@@ -115,8 +114,8 @@ var p{I,T} >= 0;
 var mc {f in F, i in I, h in H[f,i],t in T} = b0[h] + 2*b1[h]* (x[f,i,h,t]);			# Marginal cost 
 var mc1{i in I, t in T} = pmc0[2] + pmc1[2]*g[i,t];
 var flow {k in K, t in T} = sum {i in I} (PTDF[k,i]*y[i,t]);	 						# Flow definition
-var ps_total{f in F, t in T} = (1/1000)*(   sum{i in I}( (p[i,t] - w[i,t])*(s[f,i,t] - zs[f,i,t] + zb[f,i,t]) ) - sum{i in I, h in H[f,i]}(   x[f,i,h,t]*b0[h] + (x[f,i,h,t]^2)*b1[h] - w[i,t]*x[f,i,h,t]   )	- sum{i in I, v in V[f,i]}(  MCV[v]*xnew[f,i,v,t] - w[i,t]*xnew[f,i,v,t]   )		- sum{i in I, v in V[f,i]}(xcap[f,i,v]*INV[v]) + caprice*(sum{i in I, h in H[f,i], v in V[f,i]} (cap[h]+xcap[f,i,v]))	);	
-var ps{f in F, t in T} = (1/1000)*(   sum{i in I}( (p[i,t] - w[i,t])*(s[f,i,t] - zs[f,i,t] + zb[f,i,t]) ) - sum{i in I, h in H[f,i]}(   x[f,i,h,t]*b0[h] + (x[f,i,h,t]^2)*b1[h] - w[i,t]*x[f,i,h,t]   )	- sum{i in I, v in V[f,i]}(  MCV[v]*xnew[f,i,v,t] - w[i,t]*xnew[f,i,v,t]   )		);
+var ps_total{f in F, t in T} = (1/1000)*(   sum{i in I}( (p[i,t] - w[i,t])*(s[f,i,t] - zs[i,f,t] + zb[i,f,t]) ) - sum{i in I, h in H[f,i]}(   x[f,i,h,t]*b0[h] + (x[f,i,h,t]^2)*b1[h] - w[i,t]*x[f,i,h,t]   )	- sum{i in I, v in V[f,i]}(  MCV[v]*xnew[f,i,v,t] - w[i,t]*xnew[f,i,v,t]   )		- sum{i in I, v in V[f,i]}(xcap[f,i,v]*INV[v]) + caprice*(sum{i in I, h in H[f,i], v in V[f,i]} (cap[h]+xcap[f,i,v]))	);	
+var ps{f in F, t in T} = (1/1000)*(   sum{i in I}( (p[i,t] - w[i,t])*(s[f,i,t] - zs[i,f,t] + zb[i,f,t]) ) - sum{i in I, h in H[f,i]}(   x[f,i,h,t]*b0[h] + (x[f,i,h,t]^2)*b1[h] - w[i,t]*x[f,i,h,t]   )	- sum{i in I, v in V[f,i]}(  MCV[v]*xnew[f,i,v,t] - w[i,t]*xnew[f,i,v,t]   )		);
 #var ps{f in F} = (1/1000)*(sum{i in I} (p[i]-w[i])*s[f,i]-sum{i in I, h in H[f,i]} b1[h]*x[f,i,h]);
 #var ps{f in F} = (sum{i in I} (p[i]-w[i])*s[f,i]-sum{i in I, h in H[f,i]} ((mc[f,i,h]-w[i])*x[f,i,h]))/1000;
 #var ps{f in F} = (sum{i in I} (p[i]-w[i])*s[f,i]-sum{i in I, h in H[f,i]} (x[f,i,h]*b0[h] + (x[f,i,h]^2)*b1[h]))/1000;
@@ -128,10 +127,8 @@ var totd{t in T} =sum{i in I} d[i,t];
 var avgp{t in T} =sum{i in I} (p[i,t]*d[i,t])/totd[t];
 var mb{i in I, t in T} = tau[i]*p2[i,t]-p2[i,t]/q2[i,t]*(pcap[1]+g[i,t]);
 var tx{i in I, t in T} = sum{f in F, h in H[f,i]} (x[f,i,h,t]); 
-var tzs{i in I, t in T} = sum{f in F} zs[f,i,t];
-var tzb{i in I, t in T} = sum{f in F} zb[f,i,t];
-#var tzs{i in I, t in T} =  zs[i,1,t];
-#var tzb{i in I, t in T} =  zb[i,1,t];
+var tzs{i in I, t in T} = sum{f in F} zs[i,f,t];
+var tzb{i in I, t in T} = sum{f in F} zb[i,f,t];
 var tz{i in I, t in T} = tzs[i,t]- tzb[i,t];
 #var pres = (sum{i in I} p[i]*(tz[i]) - sum{i in I} (p2[i]*(pcap[1]-l[i])-0.5*p2[i]/q2[i]*(pcap[1]**2-l[i]**2))-pmc0[1]*pcap[1]-sum{i in I}(pmc0[2]*g[i]+0.5*pmc1[2]*g[i]**2))/1000; 		#presumers profit
 var pres{t in T} = (1/1000)*(sum{i in I} p[i,t]*(tz[i,t]) + sum{i in I} (tau[i]*p2[i,t]*l[i,t] - 0.5*(p2[i,t]/q2[i,t])*(l[i,t]^2)) -sum{i in I}(pmc0[2]*g[i,t]+0.5*pmc1[2]*g[i,t]**2)); 		#presumers profit
@@ -159,16 +156,16 @@ var dpeak = sum{i in I}d[i,'peak'];
 ###############################################################################
 
 subject to prosumer_zs {i in I, f in F, t in T: ord(i)==1}:
-	0 <= zs[f,i,t] complements B[t]*p[i,t] - delta[i,t] <= 0;	
+	0 <= zs[i,f,t] complements B[t]*p[i,t] - delta[i,t] <= 0;	
 
 subject to prosumer_zs1 {i in I,f in F, t in T: ord(i)<>1}:
-	zs[f,i,t] = 0;
+	zs[i,f,t] = 0;
 
 subject to prosumer_zb {i in I,f in F, t in T: ord(i)==1}:
-	0 <= zb[f,i,t] complements -B[t]*p[i,t] + delta[i,t] <= 0;	
+	0 <= zb[i,f,t] complements -B[t]*p[i,t] + delta[i,t] <= 0;	
 
 subject to prosumer_zb1 {i in I, f in F, t in T: ord(i)<>1}:
-	zb[f,i,t] = 0;
+	zb[i,f,t] = 0;
 	
 subject to foc_l{i in I, t in T: ord(i)==1}:
 	0 <= l[i,t] complements B[t]*(p2[i,t]-(p2[i,t]/q2[i,t])*l[i,t]) - delta[i,t] <= 0;
@@ -216,7 +213,7 @@ subject to prod_capnew {f in F, i in I, v in V[f,i], t in T}:
 	0 <= rhonew[f,i,v,t] complements xnew[f,i,v,t] - xcap[f,i,v] <= 0;        
 
 subject to gen_sale_balance {f in F, t in T}: # proper care is needed when calculating surplus
-	sum {i in I} (s[f,i,t] - z[f,i,t]) - sum{i in I, h in H[f,i]} x[f,i,h,t] - sum{i in I, v in V[f,i]}xnew[f,i,v,t] = 0;
+	sum {i in I} (s[f,i,t] -tz[i,t]) - sum{i in I, h in H[f,i]} x[f,i,h,t] - sum{i in I, v in V[f,i]}xnew[f,i,v,t] = 0;
 
 #subject to gen_sale_balance {i in I, f in F, t in T}: # proper care is needed when calculating surplus
 #	s[f,i,t] - (zs[f,i,t] - zb[f,i,t]) - sum{h in H[f,i]} x[f,i,h,t] - sum{v in V[f,i]}xnew[f,i,v,t] = 0;

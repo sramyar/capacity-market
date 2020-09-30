@@ -37,7 +37,7 @@ param q00{I};			# original horizontal intercept of the data
 
 #param p0{I,T};			# vertical intercept for demand
 #param q0{I,T};			# horizontal intercept for demand
-param pcoeff = 0.12*pcap[1]+ 0.7 ;
+param pcoeff = 0.012*pcap[1]+ 0.7 ;
 
 param p0{i in I, t in T} = if t='peak' then p00[i]*pcoeff else p00[i];
 param q0{i in I, t in T} = if t='peak' then q00[i]*pcoeff else q00[i];

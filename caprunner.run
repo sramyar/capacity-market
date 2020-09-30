@@ -1,4 +1,4 @@
-model capacity.mod;
+model capacity2.mod;
 data capacity.dat;
 
 set time;
