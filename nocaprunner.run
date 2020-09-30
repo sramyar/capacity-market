@@ -8,10 +8,16 @@ param Zpeak{outputs};
 param Zoffpeak{outputs};
 param pbenpeak{outputs};
 param pbenoff{outputs};
+param CSoff{outputs};
+param CSpeak{outputs};
+param PSoff{outputs};
+param PSpeak{outputs};
+param isoff{outputs};
+param isopeak{outputs};
 param swpeak{outputs};
 param swoff{outputs};
 
-let outputs := 20 .. 120 by 20;
+let outputs := 30 .. 120 by 10;
 
 for {j in outputs}{
 	let pcap[1] := j;
@@ -24,6 +30,12 @@ for {j in outputs}{
 		let Zoffpeak[j]:=tz[1,'offpeak'];
 		let pbenpeak[j] := primal['peak'];
 		let pbenoff[j] := primal['offpeak'];
+		let CSoff[j] := cs['offpeak'];
+		let CSpeak[j] := cs['peak'];
+		let isoff[j] := iso['offpeak'];
+		let isopeak[j] := iso['peak'];
+		let PSoff[j] := pstot['offpeak'];
+		let PSpeak[j] := pstot['peak'];
 		let swpeak[j] := sw['peak'];
 		let swoff[j] := sw['offpeak'];
 		
@@ -31,5 +43,5 @@ for {j in outputs}{
 	
 
 
-display Zpeak, Zoffpeak, pbenpeak, pbenoff, swpeak, swoff;
+display Zpeak, Zoffpeak, pbenpeak, pbenoff, isopeak, isoff, CSpeak, CSoff, PSpeak, PSoff, swpeak, swoff;
 

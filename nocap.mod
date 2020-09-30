@@ -21,15 +21,21 @@ set VV;
 set V{F,I} within VV;						# set of new generation technologies
 param co2{i in I};
 
+
+
 ###############################################################################
 # prosumer parameters														  #
 ###############################################################################
 param pcap{M};			# production capacity owned by prosumer
 param pmc0{M};			# prosumer marginal production cost
 param pmc1{M};			# prosumer marginal production cost
-param p2{I,T};			# vertical intercept of prosumer; A^0 in the doc
-param q2{I,T};			# horizontal intercept  of prosumer; E^0 in the doc
 
+param pcoeff = 0.012*pcap[1]+ 0.7 ; # demand curve shift parameter			
+
+param p22{I};			# vertical intercept of prosumer; A^0 in the doc
+param q22{I};			# horizontal intercept  of prosumer; E^0 in the doc
+param p2{i in I, t in T} = if t='peak' then p22[i]*pcoeff else p22[i];
+param q2{i in I, t in T} = if t='peak' then q22[i]*pcoeff else q22[i];
 
 ###############################################################################
 # Parameters                                                                  #
@@ -39,7 +45,6 @@ param q00{I};			# original horizontal intercept of the data
 
 #param p0{I,T};			# vertical intercept for demand
 #param q0{I,T};			# horizontal intercept for demand
-param pcoeff = 0.012*pcap[1]+ 0.7 ;
 
 param p0{i in I, t in T} = if t='peak' then p00[i]*pcoeff else p00[i];
 param q0{i in I, t in T} = if t='peak' then q00[i]*pcoeff else q00[i];
@@ -141,6 +146,7 @@ var primal{t in T} = (1/1000)* sum{i in I} ( p[i,t]*(tz[i,t]) + p2[1,t]*l[i,t] -
 #				 -sum{i in I, v in V[f,i],t in T}B[t]*((MCV[v]-w[i,t])*xnew[f,i,v,t])	- sum{i in I, v in V[f,i]}(xcap[f,i,v]*INV[v]) + caprice*(sum{i in I, h in H[f,i]}cap[h] + sum{i in I, v in V[f,i]}xcap[f,i,v])	);
 
 var ps_sum{f in F} = sum{t in T}ps[f,t];
+var pstot{t in T} = sum{f in F} ps[f,t];
 var tps = sum{f in F} ps_sum[f]; 
 
 var sw{t in T} = cs[t] + sum{f in F} ps[f,t] + iso[t];											# social surplus
