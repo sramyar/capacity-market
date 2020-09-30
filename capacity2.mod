@@ -89,7 +89,7 @@ var rhonew{f in F, i in I, v in V[f,i], t in T};
 
 param pricecap;							# price cap in $/MWh
 param D{i in I, t in T} = (p0[i,t]-pricecap)*(q0[i,t]/p0[i,t]) ;						# Demand function kink
-param RM := 0.2 ;								# reserve margin
+param RM;								# reserve margin
 var d1{I,T};
 var d2{I,T};
 #var d{i in I, t in T} = d1[i,t] + d2[i,t];

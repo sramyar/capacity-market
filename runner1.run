@@ -1,30 +1,35 @@
 model capacity.mod;
 data capacity.dat;
 
+set time;
+set outputs;			# prosumer renewable output
 
-set output;			# prosumer renewable output
+param Zpeak{outputs};
+param Zoffpeak{outputs};
+param pbenpeak{outputs};
+param pbenoff{outputs};
+param swpeak{outputs};
+param swoff{outputs};
 
+let outputs := 20 .. 120 by 20;
 
-param Z{output};
-param price{output};
-
-
-let output := 20 .. 120 by 20;
-
-for {j in output}{
+for {j in outputs}{
 	let pcap[1] := j;
 		options presolve 0; 
 		option solver pathampl;
 		option path_options "cumulative_iteration_limit = 1000000000 #major_iteration_limit = 10000 crash_nbchange_limit=20 #nms_stepsize_init_min=0.05";
 		solve;
 
-		let Z[j]:=tz[1];
-
-		let price[j]:=p[1];
+		let Zpeak[j]:=tz[1,'peak'];
+		let Zoffpeak[j]:=tz[1,'offpeak'];
+		let pbenpeak[j] := primal['peak'];
+		let pbenoff[j] := primal['offpeak'];
+		let swpeak[j] := sw['peak'];
+		let swoff[j] := sw['offpeak'];
 		
 	}	
 	
-}
 
-display Z, price;
+
+display Zpeak, Zoffpeak, pbenpeak, pbenoff, swpeak, swoff;
 
