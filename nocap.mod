@@ -20,11 +20,29 @@ set T;						# set of time periods: peak, off-peak
 set VV;
 set V{F,I} within VV;						# set of new generation technologies
 param co2{i in I};
+
+###############################################################################
+# prosumer parameters														  #
+###############################################################################
+param pcap{M};			# production capacity owned by prosumer
+param pmc0{M};			# prosumer marginal production cost
+param pmc1{M};			# prosumer marginal production cost
+param p2{I,T};			# vertical intercept of prosumer; A^0 in the doc
+param q2{I,T};			# horizontal intercept  of prosumer; E^0 in the doc
+
+
 ###############################################################################
 # Parameters                                                                  #
 ###############################################################################
-param p0{I,T};			# vertical intercept for demand
-param q0{I,T};			# horizontal intercept for demand
+param p00{I};			# original vertical intercept of the data
+param q00{I};			# original horizontal intercept of the data
+
+#param p0{I,T};			# vertical intercept for demand
+#param q0{I,T};			# horizontal intercept for demand
+param pcoeff = 0.12*pcap[1]+ 0.7 ;
+
+param p0{i in I, t in T} = if t='peak' then p00[i]*pcoeff else p00[i];
+param q0{i in I, t in T} = if t='peak' then q00[i]*pcoeff else q00[i];
 
 param PTDF{K, I}; 		# PTDF matrix
 param b0{P};			# constant term in supply curve
@@ -39,14 +57,8 @@ param st{I};			# strategy index of presumer
 param tau{I};			# adjusting prosumer marginal benefit of consumption
 
 param B{T};				# number of hours in each period
-###############################################################################
-# prosumer parameters														  #
-###############################################################################
-param pcap{M};			# production capacity owned by prosumer
-param pmc0{M};			# prosumer marginal production cost
-param pmc1{M};			# prosumer marginal production cost
-param p2{I,T};			# vertical intercept of prosumer; A^0 in the doc
-param q2{I,T};			# horizontal intercept  of prosumer; E^0 in the doc
+
+
 ###############################################################################
 # Variables in the problem                                                    #
 ###############################################################################
