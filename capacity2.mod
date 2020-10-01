@@ -121,6 +121,8 @@ var mc1{i in I, t in T} = pmc0[2] + pmc1[2]*g[i,t];
 var flow {k in K, t in T} = sum {i in I} (PTDF[k,i]*y[i,t]);	 						# Flow definition
 var ps_total{f in F, t in T} = (1/1000)*(   sum{i in I}( (p[i,t] - w[i,t])*(s[f,i,t] - zs[i,f,t] + zb[i,f,t]) ) - sum{i in I, h in H[f,i]}(   x[f,i,h,t]*b0[h] + (x[f,i,h,t]^2)*b1[h] - w[i,t]*x[f,i,h,t]   )	- sum{i in I, v in V[f,i]}(  MCV[v]*xnew[f,i,v,t] - w[i,t]*xnew[f,i,v,t]   )		- sum{i in I, v in V[f,i]}(xcap[f,i,v]*INV[v]) + caprice*(sum{i in I, h in H[f,i], v in V[f,i]} (cap[h]+xcap[f,i,v]))	);	
 var ps{f in F, t in T} = (1/1000)*(   sum{i in I}( (p[i,t] - w[i,t])*(s[f,i,t] - zs[i,f,t] + zb[i,f,t]) ) - sum{i in I, h in H[f,i]}(   x[f,i,h,t]*b0[h] + (x[f,i,h,t]^2)*b1[h] - w[i,t]*x[f,i,h,t]   )	- sum{i in I, v in V[f,i]}(  MCV[v]*xnew[f,i,v,t] - w[i,t]*xnew[f,i,v,t]   )		);
+var pstotal{f in F, t in T} = (1/1000)*(   sum{i in I}( (p[i,t] - w[i,t])*(s[f,i,t] - zs[i,f,t] + zb[i,f,t]) ) - sum{i in I, h in H[f,i]}(   x[f,i,h,t]*b0[h] + (x[f,i,h,t]^2)*b1[h] - w[i,t]*x[f,i,h,t]   )	- sum{i in I, v in V[f,i]}(  MCV[v]*xnew[f,i,v,t] - w[i,t]*xnew[f,i,v,t]   )		- sum{i in I, v in V[f,i]}(xcap[f,i,v]*INV[v]) + caprice*(sum{i in I, h in H[f,i], v in V[f,i]} (cap[h]+xcap[f,i,v]))	);	
+var psinvest{f in F, t in T} = - sum{i in I, v in V[f,i]}(xcap[f,i,v]*INV[v]) + caprice*(sum{i in I, h in H[f,i], v in V[f,i]} (cap[h]+xcap[f,i,v]));
 #var ps{f in F} = (1/1000)*(sum{i in I} (p[i]-w[i])*s[f,i]-sum{i in I, h in H[f,i]} b1[h]*x[f,i,h]);
 #var ps{f in F} = (sum{i in I} (p[i]-w[i])*s[f,i]-sum{i in I, h in H[f,i]} ((mc[f,i,h]-w[i])*x[f,i,h]))/1000;
 #var ps{f in F} = (sum{i in I} (p[i]-w[i])*s[f,i]-sum{i in I, h in H[f,i]} (x[f,i,h]*b0[h] + (x[f,i,h]^2)*b1[h]))/1000;
@@ -146,7 +148,8 @@ var primal{t in T} = (1/1000)* sum{i in I} ( p[i,t]*(tz[i,t]) + p2[1,t]*l[i,t] -
 #				 -sum{i in I, v in V[f,i],t in T}B[t]*((MCV[v]-w[i,t])*xnew[f,i,v,t])	- sum{i in I, v in V[f,i]}(xcap[f,i,v]*INV[v]) + caprice*(sum{i in I, h in H[f,i]}cap[h] + sum{i in I, v in V[f,i]}xcap[f,i,v])	);
 
 var ps_sum{f in F} = sum{t in T}ps[f,t];
-var pstot{t in T} = sum{f in F} ps[f,t];
+var pstot{t in T} = sum{f in F} ps[f,t];	## this could be pstotal
+var psinv{t in T} = (1/1000)*sum{f in F}psinvest[f,t];
 
 var tps = sum{f in F} ps_sum[f]; 
 

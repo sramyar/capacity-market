@@ -17,6 +17,10 @@ param isoff{outputs};
 param isopeak{outputs};
 param swpeak{outputs};
 param swoff{outputs};
+param investoff{outputs};
+param investpeak{outputs};
+
+
 
 let outputs := 30 .. 120 by 10;
 
@@ -37,6 +41,8 @@ for {j in outputs}{
 		let isopeak[j] := iso['peak'];
 		let PSoff[j] := pstot['offpeak'];
 		let PSpeak[j] := pstot['peak'];
+		let investoff[j] := psinv['offpeak'];
+		let investpeak[j] := psinv['peak'];
 		let swpeak[j] := sw['peak'];
 		let swoff[j] := sw['offpeak'];
 		
@@ -44,5 +50,4 @@ for {j in outputs}{
 	
 
 
-display Zpeak, Zoffpeak, pbenpeak, pbenoff, isopeak, isoff, CSpeak, CSoff, PSpeak, PSoff, swpeak, swoff;
-
+display Zpeak, Zoffpeak, pbenpeak, pbenoff, isopeak, isoff, CSpeak, CSoff, PSpeak, PSoff, investpeak, swpeak, swoff;

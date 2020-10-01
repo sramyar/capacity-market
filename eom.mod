@@ -119,9 +119,9 @@ var p{I,T} >= 0;
 var mc {f in F, i in I, h in H[f,i],t in T} = b0[h] + 2*b1[h]* (x[f,i,h,t]);			# Marginal cost 
 var mc1{i in I, t in T} = pmc0[2] + pmc1[2]*g[i,t];
 var flow {k in K, t in T} = sum {i in I} (PTDF[k,i]*y[i,t]);	 						# Flow definition
-var ps_total{f in F, t in T} = (1/1000)*(   sum{i in I}( (p[i,t] - w[i,t])*(s[f,i,t] - zs[i,f,t] + zb[i,f,t]) ) - sum{i in I, h in H[f,i]}(   x[f,i,h,t]*b0[h] + (x[f,i,h,t]^2)*b1[h] - w[i,t]*x[f,i,h,t]   )	- sum{i in I, v in V[f,i]}(  MCV[v]*xnew[f,i,v,t] - w[i,t]*xnew[f,i,v,t]   )		- sum{i in I, v in V[f,i]}(xcap[f,i,v]*INV[v]) + caprice*(sum{i in I, h in H[f,i], v in V[f,i]} (cap[h]+xcap[f,i,v]))	);	
+var ps_total{f in F, t in T} = (1/1000)*(   sum{i in I}( (p[i,t] - w[i,t])*(s[f,i,t] - zs[i,f,t] + zb[i,f,t]) ) - sum{i in I, h in H[f,i]}(   x[f,i,h,t]*b0[h] + (x[f,i,h,t]^2)*b1[h] - w[i,t]*x[f,i,h,t]   )	- sum{i in I, v in V[f,i]}(  MCV[v]*xnew[f,i,v,t] - w[i,t]*xnew[f,i,v,t]   )		- sum{i in I, v in V[f,i]}(xcap[f,i,v]*INV[v]) 	);	
 var ps{f in F, t in T} = (1/1000)*(   sum{i in I}( (p[i,t] - w[i,t])*(s[f,i,t] - zs[i,f,t] + zb[i,f,t]) ) - sum{i in I, h in H[f,i]}(   x[f,i,h,t]*b0[h] + (x[f,i,h,t]^2)*b1[h] - w[i,t]*x[f,i,h,t]   )	- sum{i in I, v in V[f,i]}(  MCV[v]*xnew[f,i,v,t] - w[i,t]*xnew[f,i,v,t]   )		);
-var pstotal{f in F, t in T} = (1/1000)*(   sum{i in I}( (p[i,t] - w[i,t])*(s[f,i,t] - zs[i,f,t] + zb[i,f,t]) ) - sum{i in I, h in H[f,i]}(   x[f,i,h,t]*b0[h] + (x[f,i,h,t]^2)*b1[h] - w[i,t]*x[f,i,h,t]   )	- sum{i in I, v in V[f,i]}(  MCV[v]*xnew[f,i,v,t] - w[i,t]*xnew[f,i,v,t]   )		- sum{i in I, v in V[f,i]}(xcap[f,i,v]*INV[v]) + caprice*(sum{i in I, h in H[f,i], v in V[f,i]} (cap[h]+xcap[f,i,v]))	);	
+var pstotal{f in F, t in T} = (1/1000)*(   sum{i in I}( (p[i,t] - w[i,t])*(s[f,i,t] - zs[i,f,t] + zb[i,f,t]) ) - sum{i in I, h in H[f,i]}(   x[f,i,h,t]*b0[h] + (x[f,i,h,t]^2)*b1[h] - w[i,t]*x[f,i,h,t]   )	- sum{i in I, v in V[f,i]}(  MCV[v]*xnew[f,i,v,t] - w[i,t]*xnew[f,i,v,t]   )		- sum{i in I, v in V[f,i]}(xcap[f,i,v]*INV[v]) 	);	
 var psinvest{f in F, t in T} = - sum{i in I, v in V[f,i]}(xcap[f,i,v]*INV[v]) + caprice*(sum{i in I, h in H[f,i], v in V[f,i]} (cap[h]+xcap[f,i,v]));
 #var ps{f in F} = (1/1000)*(sum{i in I} (p[i]-w[i])*s[f,i]-sum{i in I, h in H[f,i]} b1[h]*x[f,i,h]);
 #var ps{f in F} = (sum{i in I} (p[i]-w[i])*s[f,i]-sum{i in I, h in H[f,i]} ((mc[f,i,h]-w[i])*x[f,i,h]))/1000;
@@ -148,7 +148,7 @@ var primal{t in T} = (1/1000)* sum{i in I} ( p[i,t]*(tz[i,t]) + p2[1,t]*l[i,t] -
 #				 -sum{i in I, v in V[f,i],t in T}B[t]*((MCV[v]-w[i,t])*xnew[f,i,v,t])	- sum{i in I, v in V[f,i]}(xcap[f,i,v]*INV[v]) + caprice*(sum{i in I, h in H[f,i]}cap[h] + sum{i in I, v in V[f,i]}xcap[f,i,v])	);
 
 var ps_sum{f in F} = sum{t in T}ps[f,t];
-var pstot{t in T} = sum{f in F} ps[f,t]; ## this could be pstotal
+var pstot{t in T} = sum{f in F} ps[f,t];
 var psinv{t in T} = (1/1000)*sum{f in F}psinvest[f,t];
 var tps = sum{f in F} ps_sum[f]; 
 
@@ -159,6 +159,7 @@ var sw{t in T} = cs[t] + sum{f in F} ps[f,t] + iso[t];											# social surplu
 #var producer2 = sum {f in F} (sum{i in I} (p[i])*s[f,i]-sum{i in I, h in H[f,i]} ((mc[f,i,h])*x[f,i,h]))/1000;
 
 var dpeak = sum{i in I}d[i,'peak'];
+
 
 ##############################################################################
 # prosumer KKT:																  #
@@ -196,7 +197,6 @@ subject to output{i in I, t in T}:
 	
 
 
-
 	
 ###############################################################################
 # producer                                                                       #
@@ -213,7 +213,7 @@ subject to prod_xnew {f in F, i in I, v in V[f,i], t in T}:
 	0 <= xnew[f,i,v,t] complements B[t]*( - MCV[v] + w[i,t]) - rhonew[f,i,v,t] +theta[f,t] <= 0;
 
 subject to newcap{f in F, i in I, v in V[f,i]}:
-	0 <= xcap[f,i,v] complements -INV[v] + caprice + sum{t in T}rhonew[f,i,v,t] <= 0;
+	0 <= xcap[f,i,v] complements -INV[v] + sum{t in T}rhonew[f,i,v,t] <= 0;
 
 subject to prod_cap {f in F, i in I, h in H[f,i], t in T}:
 	0 <= rho[f,i,h,t] complements x[f,i,h,t] - cap[h] <= 0; 		#>>>>>>>>> WORTH CONSIDERING IN TERMS OF ORGANIZING *H* and *H^new*
@@ -237,6 +237,7 @@ subject to gen_sale_balance {f in F, t in T}: # proper care is needed when calcu
 # HOBBS PAPER FOR PARAMETER TABLE 2, J. REG. ECON. 		FOR CAP INVST		  #
 ###############################################################################
 
+
 ##############################################################################
 # Grid Owner KKT														  #
 ###############################################################################                  
@@ -251,7 +252,6 @@ subject to injection {i in I, t in T}:
 	  B[t]*w[i,t] + sum{k in K} (PTDF[k,i]*(lambda_lo[k,t]-lambda_up[k,t])) = 0;
 	  
 
-	
 
 
 ###############################################################################
@@ -261,6 +261,25 @@ subject to injection {i in I, t in T}:
 subject to nodalbalance {i in I, t in T}:
 	y[i,t] = - sum{f in F, h in H[f,i]}x[f,i,h,t] - sum{f in F, v in V[f,i]}xnew[f,i,v,t] + sum{f in F} s[f,i,t] - tz[i,t];		 #tz[i,t] used to be sum{f in F} (zs[f,i,t]-zb[f,i,t])
 
+
+###############################################################################
+# Reserve Margin															  #
+###############################################################################
+
+
+subject to margin:
+	0 <= caprice complements sum{f in F, i in I, h in H[f,i]}cap[h]+ sum{f in F, i in I, v in V[f,i]}xcap[f,i,v] - sum{i in I}d[i,'peak']*(1+RM) >= 0 ;   #>>>>>>>>>>>>>>. This is H[f,i]^{new} 
+
+
+
+###############################################################################
+# demand:																	  #
+###############################################################################
+
+subject to demand2{i in I, t in T}:
+	0 <= d[i,t] complements p0[i,t] - (p0[i,t]/q0[i,t])*d[i,t] - p[i,t] <= 0;
+
+
 #subject to genoffset {f in F, t in T}:
 #	sum{i in I}(s[f,i,t] - tz[i,t]) - sum{i in I, h in H[f,i]}x[f,i,h,t] - sum{i in I, v in V[f,i]} xnew[f,i,v,t] = 0;
 
@@ -269,15 +288,7 @@ subject to nodalbalance {i in I, t in T}:
 #	sum{i in I} y[i,t] = 0;
 
 
-###############################################################################
-# demand:																	  #
-###############################################################################
-
-
-
-
-subject to demand2{i in I, t in T}:
-	0 <= d[i,t] complements p0[i,t] - (p0[i,t]/q0[i,t])*d[i,t] - p[i,t] <= 0;
+	
 
 
 
@@ -285,14 +296,14 @@ subject to demand2{i in I, t in T}:
 ###############################################################################
 # capacity market:															  #
 ###############################################################################
-
+/*
 subject to capacity_market:
 	0 <= caprice complements sum{f in F, i in I, h in H[f,i]}cap[h]+ sum{f in F, i in I, v in V[f,i]}xcap[f,i,v] - sum{i in I}d[i,'peak']*(1+RM) >= 0    #>>>>>>>>>>>>>>. This is H[f,i]^{new} 
-/*
+
 */
 
 ###############################################################################
-# arbitrager demand:															  #
+# arbitrager demand:														  #
 ###############################################################################
 
 /*
